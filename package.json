@@ -1,0 +1,51 @@
+{
+  "name": "@cotherapist/instrument-take",
+  "version": "0.1.0",
+  "description": "Stimulus controllers for Cotherapist instrument take forms (questionnaire, ordered_selection, stimulus_wizard)",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./controllers/*": "./src/controllers/*",
+    "./helpers/*": "./src/helpers/*",
+    "./styles/ordered-selection.css": "./styles/ordered-selection.scss",
+    "./styles/ordered-selection.scss": "./styles/ordered-selection.scss"
+  },
+  "files": [
+    "src",
+    "styles",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cotherapist-ru/instrument-take.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cotherapist-ru/instrument-take/issues"
+  },
+  "homepage": "https://github.com/cotherapist-ru/instrument-take#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.2.0"
+  },
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.2.2"
+  },
+  "keywords": [
+    "stimulus",
+    "cotherapist",
+    "psychometrics",
+    "hotwired"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

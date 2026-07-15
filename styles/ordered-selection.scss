@@ -1,0 +1,193 @@
+/* @cotherapist/instrument-take — ordered_selection portrait grid (Szondi etc.)
+   Selection feedback stays inside the cell (inset shadow, no expanding outline)
+   so Chrome does not shift the 4×2 grid on pick. */
+
+.ordered-selection-item-grid,
+.ordered-selection-item-grid.columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 1rem;
+  overflow: clip;
+}
+
+.ordered-selection-item-grid > .ordered-selection-column,
+.ordered-selection-item-grid > .column,
+.ordered-selection-item-grid.columns > .ordered-selection-column,
+.ordered-selection-item-grid.columns > .column {
+  display: flex;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  flex: none;
+  padding: 0.25rem;
+}
+
+.ordered-selection-item {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--app-border, #dbdbdb);
+  border-radius: var(--app-radius-sm, 4px);
+  background: var(--app-surface, #fff);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  overflow: hidden;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+/* Bulma `.button` reset when used as portrait cell */
+.button.ordered-selection-item {
+  height: auto;
+  white-space: normal;
+  box-shadow: none;
+}
+
+.button.ordered-selection-item:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+
+.ordered-selection-item:focus {
+  outline: none;
+}
+
+.ordered-selection-item:focus-visible {
+  border-color: var(--app-link, #5a8f9e);
+  box-shadow: inset 0 0 0 2px var(--app-accent-soft, rgba(74, 124, 140, 0.1));
+}
+
+.ordered-selection-item picture {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.ordered-selection-item-grid--szondi_mpv .ordered-selection-item__img {
+  aspect-ratio: 264 / 312;
+}
+
+.ordered-selection-item-grid--szondi_orig .ordered-selection-item__img {
+  aspect-ratio: 320 / 480;
+}
+
+.ordered-selection-item__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.ordered-selection-item__slot {
+  flex-shrink: 0;
+  line-height: 1.2;
+  min-height: 1.2em;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--app-text-muted, #5c6b73);
+}
+
+.ordered-selection-item__rank {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  z-index: 1;
+  min-width: 1.5rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  background: var(--app-accent, #4a7c8c);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.ordered-selection-item.is-primary,
+.ordered-selection-item.is-danger,
+.ordered-selection-item--ranked,
+.ordered-selection-item[aria-pressed="true"] {
+  border-color: var(--app-accent, #4a7c8c);
+}
+
+.ordered-selection-item.is-primary,
+.button.ordered-selection-item.is-primary {
+  background: var(--app-feedback-info-bg, #eef5f7);
+  border-color: var(--app-accent, #4a7c8c);
+  box-shadow: none;
+}
+
+.ordered-selection-item.is-danger,
+.button.ordered-selection-item.is-danger {
+  background: var(--app-feedback-danger-bg, #fdf0f0);
+  border-color: var(--app-feedback-danger-border, #c45c5c);
+  box-shadow: none;
+}
+
+.ordered-selection-ranking-strip {
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .ordered-selection-item-grid,
+  .ordered-selection-item-grid.columns {
+    gap: 0.35rem;
+  }
+
+  .ordered-selection-item-grid > .ordered-selection-column,
+  .ordered-selection-item-grid > .column,
+  .ordered-selection-item-grid.columns > .ordered-selection-column,
+  .ordered-selection-item-grid.columns > .column {
+    padding: 0.15rem;
+  }
+
+  .ordered-selection-item {
+    padding: 0.35rem;
+    touch-action: manipulation;
+  }
+
+  .ordered-selection-item__slot {
+    font-size: 0.65rem;
+  }
+
+  .ordered-selection-procedure-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .ordered-selection-procedure-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0 !important;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--app-border, #dbdbdb);
+    border-radius: var(--app-radius, 4px);
+    width: 100%;
+  }
+
+  .ordered-selection-form-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .ordered-selection-form-actions .button {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 10rem;
+  }
+}
