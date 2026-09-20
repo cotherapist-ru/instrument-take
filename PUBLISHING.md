@@ -26,7 +26,7 @@
 Репозиторий `cotherapist-ru/instrument-take` уже существует. Проверьте:
 
 1. **Settings → Actions → General → Workflow permissions** → Read and write
-2. Первая публикация в GitHub Packages создаст пакет `instrument-take` в org. Visibility по умолчанию следует за репозиторием (public repo → public package)
+2. Первая публикация создаёт пакет `instrument-take` в org. Visibility по умолчанию **private**. Не переключайте пакет на Public: обратно в private GitHub не возвращает. `publishConfig.access` должен быть `restricted`.
 
 Локальный remote:
 
@@ -64,14 +64,15 @@ npm pack --dry-run   # убедиться, что в tarball только нуж
 | `package.json` | Git tag |
 |----------------|---------|
 | `0.1.0` | `v0.1.0` (npmjs, больше не публикуется) |
-| `0.2.0` | `v0.2.0` (GitHub Packages) |
+| `0.2.0` | `v0.2.0` (GitHub Packages, private) |
+| `0.2.1` | `v0.2.1` (`publishConfig.access: restricted`) |
 
 ### 4.1. Создать GitHub Release
 
 1. https://github.com/cotherapist-ru/instrument-take/releases/new
-2. **Choose a tag:** `v0.2.0` → **Create new tag** on publish
+2. **Choose a tag:** `v0.2.1` → **Create new tag** on publish
 3. **Target:** `main`
-4. **Release title:** `v0.2.0`
+4. **Release title:** `v0.2.1`
 5. **Publish release**
 
 Workflow **Publish** запустится автоматически (`on: release: types: [published]`). `--provenance` не используется: это опция npmjs/sigstore, не GitHub Packages.
@@ -79,7 +80,7 @@ Workflow **Publish** запустится автоматически (`on: relea
 ### 4.2. Проверить результат
 
 1. **Actions** → **Publish** → зелёный статус
-2. https://github.com/cotherapist-ru/instrument-take/pkgs/npm/instrument-take — версия `0.2.0`
+2. https://github.com/cotherapist-ru/instrument-take/pkgs/npm/instrument-take — версия `0.2.1`
 
 ---
 
@@ -89,7 +90,7 @@ Workflow **Publish** запустится автоматически (`on: relea
 git checkout main
 git pull
 
-npm version patch   # 0.2.0 → 0.2.1
+npm version patch   # 0.2.1 → 0.2.2
 # или: npm version minor / major
 
 git push origin main --follow-tags
@@ -136,7 +137,7 @@ npm publish
 
 ## 8. Подключение в других проектах
 
-GitHub Packages требует `_authToken` даже для публичного пакета.
+Пакет приватный: без `_authToken` GitHub Packages отвечает 401.
 
 ```ini
 # .npmrc
@@ -147,7 +148,7 @@ GitHub Packages требует `_authToken` даже для публичного
 ```json
 {
   "dependencies": {
-    "@cotherapist-ru/instrument-take": "^0.2.0",
+    "@cotherapist-ru/instrument-take": "^0.2.1",
     "@hotwired/stimulus": "^3.2.2"
   }
 }
