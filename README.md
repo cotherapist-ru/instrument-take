@@ -1,7 +1,7 @@
-# @cotherapist/instrument-take
+# @cotherapist-ru/instrument-take
 
 [![CI](https://github.com/cotherapist-ru/instrument-take/actions/workflows/ci.yml/badge.svg)](https://github.com/cotherapist-ru/instrument-take/actions/workflows/ci.yml)
-[![npm version](https://img.shields.io/npm/v/@cotherapist/instrument-take.svg)](https://www.npmjs.com/package/@cotherapist/instrument-take)
+[![GitHub Release](https://img.shields.io/github/v/release/cotherapist-ru/instrument-take)](https://github.com/cotherapist-ru/instrument-take/pkgs/npm/instrument-take)
 
 Stimulus-контроллеры для прохождения психологических тестов (form archetypes):
 
@@ -10,10 +10,21 @@ Stimulus-контроллеры для прохождения психологи
 - `stimulus-wizard` — wizard для стимульных методик
 - `submit-loading` — блокировка формы при отправке без отмены навигации в Chromium
 
+Пакет публикуется в **GitHub Packages** (`npm.pkg.github.com`). Scope совпадает с GitHub-организацией: `@cotherapist-ru`.
+
 ## Установка
 
+GitHub Packages требует авторизации даже для публичных пакетов. В корне потребителя:
+
+```ini
+# .npmrc
+@cotherapist-ru:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
+
 ```bash
-npm install @cotherapist/instrument-take @hotwired/stimulus
+export NODE_AUTH_TOKEN=ghp_...   # PAT с read:packages, либо GITHUB_TOKEN в CI
+npm install @cotherapist-ru/instrument-take @hotwired/stimulus
 ```
 
 `@hotwired/stimulus` — peer dependency (>= 3.2).
@@ -27,7 +38,7 @@ import {
   OrderedSelectionController,
   StimulusWizardController,
   SubmitLoadingController,
-} from "@cotherapist/instrument-take"
+} from "@cotherapist-ru/instrument-take"
 
 const app = Application.start()
 app.register("questionnaire-wizard", QuestionnaireWizardController)
@@ -39,19 +50,19 @@ app.register("submit-loading", SubmitLoadingController)
 Хелперы экспортируются из корня пакета:
 
 ```js
-import { findStepElement, parseDataset, lockSubmitButtons } from "@cotherapist/instrument-take"
+import { findStepElement, parseDataset, lockSubmitButtons } from "@cotherapist-ru/instrument-take"
 ```
 
 Стили портретного `ordered-selection` (Сонди) — в пакете:
 
 ```css
-@import "@cotherapist/instrument-take/styles/ordered-selection.css";
+@import "@cotherapist-ru/instrument-take/styles/ordered-selection.css";
 ```
 
 Для Sass (monolith) импортируйте без расширения `.css`, чтобы стили встроились в бандл:
 
 ```scss
-@import "@cotherapist/instrument-take/styles/ordered-selection";
+@import "@cotherapist-ru/instrument-take/styles/ordered-selection";
 ```
 
 В public-testing файл копируется при `task assets` в `web/static/instrument-take-ordered-selection.css`.
@@ -67,13 +78,13 @@ npm test
 
 ## Публикация
 
-Подробная пошаговая инструкция: **[PUBLISHING.md](PUBLISHING.md)** (npm org, GitHub Secrets, первый и последующие релизы).
+Подробная инструкция: **[PUBLISHING.md](PUBLISHING.md)**.
 
 Кратко:
 
 1. Репозиторий: [github.com/cotherapist-ru/instrument-take](https://github.com/cotherapist-ru/instrument-take)
-2. Секрет `NPM_TOKEN` в GitHub Actions (Automation token org `@cotherapist`)
-3. GitHub Release с тегом `vX.Y.Z` = `version` в `package.json` → workflow **Publish** публикует в npm
+2. GitHub Release с тегом `vX.Y.Z` = `version` в `package.json`
+3. Workflow **Publish** публикует в GitHub Packages через `GITHUB_TOKEN` (секрет `NPM_TOKEN` не нужен)
 
 ## Лицензия
 

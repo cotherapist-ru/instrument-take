@@ -1,100 +1,44 @@
-# Инструкция по публикации `@cotherapist/instrument-take`
+# Инструкция по публикации `@cotherapist-ru/instrument-take`
 
-Пакет публикуется в **npm** (`registry.npmjs.org`) из отдельного GitHub-репозитория. CI и публикация автоматизированы через GitHub Actions.
+Пакет публикуется в **GitHub Packages** (`npm.pkg.github.com`) из отдельного GitHub-репозитория. Scope **обязан** совпадать с владельцем репозитория: организация `cotherapist-ru` → пакет `@cotherapist-ru/instrument-take`.
 
 | Что | Где |
 |-----|-----|
 | GitHub-репозиторий | https://github.com/cotherapist-ru/instrument-take |
-| npm-пакет | https://www.npmjs.com/package/@cotherapist/instrument-take |
+| Пакет | https://github.com/cotherapist-ru/instrument-take/pkgs/npm/instrument-take |
 | CI | `.github/workflows/ci.yml` |
 | Publish | `.github/workflows/publish.yml` |
+
+Секрет `NPM_TOKEN` **не нужен**: workflow публикует через `GITHUB_TOKEN` с правом `packages: write`.
 
 ---
 
 ## 1. Предварительные требования
 
-- Аккаунт на [npmjs.com](https://www.npmjs.com/)
-- Доступ к GitHub-организации **[cotherapist-ru](https://github.com/cotherapist-ru)** (создание репозитория, Secrets, Releases)
+- Доступ к GitHub-организации **[cotherapist-ru](https://github.com/cotherapist-ru)** (push в репозиторий, Releases, Packages)
 - Node.js >= 18 локально (для проверки перед релизом)
-- Права на публикацию в npm scope `@cotherapist`
+- В org включена публикация пакетов из Actions: **Settings → Actions → General → Workflow permissions** — Read and write; для Packages: Actions могут создавать пакеты
 
 ---
 
-## 2. Одноразовая настройка npm
+## 2. Одноразовая настройка GitHub
 
-### 2.1. Организация `@cotherapist`
+Репозиторий `cotherapist-ru/instrument-take` уже существует. Проверьте:
 
-Если scope ещё не создан:
+1. **Settings → Actions → General → Workflow permissions** → Read and write
+2. Первая публикация в GitHub Packages создаст пакет `instrument-take` в org. Visibility по умолчанию следует за репозиторием (public repo → public package)
 
-1. Войдите на https://www.npmjs.com/
-2. **Account** → **Organizations** → **Create an Organization**
-3. Имя: `cotherapist`
-4. Тип: **Unlimited public packages** (пакет публичный)
-
-Пригласите в org всех, кто будет публикать релизы.
-
-### 2.2. Automation token для CI
-
-1. npm → **Access Tokens** → **Generate New Token**
-2. Тип: **Granular Access Token** (рекомендуется) или **Classic Automation Token**
-3. Права:
-   - **Read and write** для пакета `@cotherapist/instrument-take`
-   - или **Read and write** для всей org `@cotherapist`
-4. Скопируйте токен — он показывается один раз
-
-> Для provenance (связь npm ↔ GitHub) токен должен быть **Automation**, не Publish для локальной машины.
-
----
-
-## 3. Одноразовая настройка GitHub
-
-### 3.1. Создать репозиторий
-
-1. https://github.com/organizations/cotherapist-ru/repositories/new
-2. **Repository name:** `instrument-take`
-3. **Visibility:** Public (для npm provenance)
-4. Без README / .gitignore / license — они уже в пакете
-
-### 3.2. Запушить код
-
-Из каталога пакета в монорепо:
+Локальный remote:
 
 ```bash
 cd packages/instrument-take
-
-git init
-git add .
-git commit -m "feat: initial release of @cotherapist/instrument-take"
-git branch -M main
-git remote add origin git@github.com:cotherapist-ru/instrument-take.git
-git push -u origin main
+git remote -v
+# origin  git@github.com:cotherapist-ru/instrument-take.git
 ```
-
-SSH или HTTPS — по вашему выбору:
-
-```bash
-git remote add origin https://github.com/cotherapist-ru/instrument-take.git
-```
-
-### 3.3. Секрет `NPM_TOKEN`
-
-1. GitHub → **cotherapist-ru/instrument-take** → **Settings** → **Secrets and variables** → **Actions**
-2. **New repository secret**
-3. Name: `NPM_TOKEN`
-4. Value: токен из п. 2.2
-
-### 3.4. (Рекомендуется) Trusted Publishing / Provenance
-
-Workflow уже использует `npm publish --provenance`. Для отображения «Published with provenance» на npm:
-
-1. npm → org **cotherapist** → **Packages** → `@cotherapist/instrument-take` (после первой публикации)
-2. **Publishing access** → привязать GitHub repo `cotherapist-ru/instrument-take`
-
-Либо настроить **Trusted Publisher** в npm до первого релиза (npm → Access Tokens → Trusted Publishers → GitHub Actions).
 
 ---
 
-## 4. Проверка CI
+## 3. Проверка CI
 
 После push в `main`:
 
@@ -109,63 +53,49 @@ npm test
 npm pack --dry-run   # убедиться, что в tarball только нужные файлы
 ```
 
-Ожидаемое содержимое tarball: `src/`, `README.md`, `LICENSE`, `package.json`.
+Ожидаемое содержимое tarball: `src/`, `styles/`, `README.md`, `LICENSE`, `package.json`.
 
 ---
 
-## 5. Первый релиз (v0.1.0)
+## 4. Релиз
 
-### 5.1. Версия
-
-Текущая версия в `package.json`: **0.1.0**. Тег релиза должен совпадать с префиксом `v`:
+Тег GitHub Release должен совпадать с `version` в `package.json` (префикс `v`):
 
 | `package.json` | Git tag |
 |----------------|---------|
-| `0.1.0` | `v0.1.0` |
-| `0.2.0` | `v0.2.0` |
+| `0.1.0` | `v0.1.0` (npmjs, больше не публикуется) |
+| `0.2.0` | `v0.2.0` (GitHub Packages) |
 
-### 5.2. Создать GitHub Release
+### 4.1. Создать GitHub Release
 
 1. https://github.com/cotherapist-ru/instrument-take/releases/new
-2. **Choose a tag:** `v0.1.0` → **Create new tag** on publish
+2. **Choose a tag:** `v0.2.0` → **Create new tag** on publish
 3. **Target:** `main`
-4. **Release title:** `v0.1.0` (или краткое описание изменений)
+4. **Release title:** `v0.2.0`
 5. **Publish release**
 
-Workflow **Publish** запустится автоматически (`on: release: types: [published]`).
+Workflow **Publish** запустится автоматически (`on: release: types: [published]`). `--provenance` не используется: это опция npmjs/sigstore, не GitHub Packages.
 
-### 5.3. Проверить результат
+### 4.2. Проверить результат
 
 1. **Actions** → **Publish** → зелёный статус
-2. https://www.npmjs.com/package/@cotherapist/instrument-take — версия `0.1.0`
-3. Установка:
-
-```bash
-npm install @cotherapist/instrument-take @hotwired/stimulus
-```
+2. https://github.com/cotherapist-ru/instrument-take/pkgs/npm/instrument-take — версия `0.2.0`
 
 ---
 
-## 6. Последующие релизы
-
-Стандартный цикл:
+## 5. Последующие релизы
 
 ```bash
-# 1. Изменения в main (через PR)
 git checkout main
 git pull
 
-# 2. Обновить версию (semver)
-npm version patch   # 0.1.0 → 0.1.1
+npm version patch   # 0.2.0 → 0.2.1
 # или: npm version minor / major
 
-# 3. Запушить коммит и тег
 git push origin main --follow-tags
-
-# 4. Создать GitHub Release для нового тега vX.Y.Z
 ```
 
-**Важно:** `npm version` создаёт git-тег `vX.Y.Z` и коммит с новой версией в `package.json`. GitHub Release нужно создать для этого тега — именно **publish release** триггерит workflow.
+Затем создайте GitHub Release для тега `vX.Y.Z`. Именно **Publish release** триггерит workflow.
 
 ### Semver
 
@@ -175,86 +105,111 @@ git push origin main --follow-tags
 | **minor** | новая функциональность, обратная совместимость |
 | **major** | breaking changes для потребителей пакета |
 
+Breaking change этой линейки: имя пакета сменилось с `@cotherapist/instrument-take` (npmjs) на `@cotherapist-ru/instrument-take` (GitHub Packages).
+
 ---
 
-## 7. Ручная публикация (fallback)
+## 6. Ручная публикация (fallback)
 
-Если Actions недоступен, можно опубликовать локально:
+Если Actions недоступен:
 
 ```bash
-npm login                    # один раз, аккаунт с доступом к @cotherapist
+# PAT с write:packages, либо GitHub CLI
+export NODE_AUTH_TOKEN=$(gh auth token)
+
 npm ci
 npm test
-npm publish --access public  # без --provenance с локальной машины
+npm publish
 ```
 
-Для CI предпочтительнее только автоматическая публикация через Release.
+`.npmrc` в корне пакета уже указывает scope `@cotherapist-ru` на `https://npm.pkg.github.com`. Токен в файл не кладите.
 
 ---
 
-## 8. Публикация без Release (workflow_dispatch)
+## 7. Публикация без Release (workflow_dispatch)
 
-В **Actions** → **Publish** → **Run workflow** → **Run workflow**.
+В **Actions** → **Publish** → **Run workflow**.
 
-Используйте только если версия в `package.json` на `main` ещё **не** опубликована в npm. Повторная публикация той же версии завершится ошибкой `403 Forbidden` / `You cannot publish over the previously published versions`.
+Используйте только если версия в `package.json` на `main` ещё **не** опубликована. Повторная публикация той же версии завершится ошибкой.
 
 ---
 
-## 9. Подключение в других проектах
+## 8. Подключение в других проектах
 
-### Из npm (после публикации)
+GitHub Packages требует `_authToken` даже для публичного пакета.
+
+```ini
+# .npmrc
+@cotherapist-ru:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
 
 ```json
 {
   "dependencies": {
-    "@cotherapist/instrument-take": "^0.1.0",
+    "@cotherapist-ru/instrument-take": "^0.2.0",
     "@hotwired/stimulus": "^3.2.2"
   }
 }
 ```
 
-### Из монорепо (до публикации / для разработки)
+```js
+import { Application } from "@hotwired/stimulus"
+import {
+  QuestionnaireWizardController,
+  OrderedSelectionController,
+  StimulusWizardController,
+  SubmitLoadingController,
+} from "@cotherapist-ru/instrument-take"
+
+const app = Application.start()
+app.register("questionnaire-wizard", QuestionnaireWizardController)
+app.register("ordered-selection", OrderedSelectionController)
+app.register("stimulus-wizard", StimulusWizardController)
+app.register("submit-loading", SubmitLoadingController)
+```
+
+Токен:
+
+- локально: PAT (classic) с `read:packages`, либо `gh auth token` при входе в org
+- GitHub Actions: `NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` + `packages: read`
+- GitLab CI / Docker: CI/CD variable `NODE_AUTH_TOKEN` (PAT с `read:packages`), передать как build-arg в Dockerfile
+
+### Из монорепо (до публикации / без сети)
 
 ```json
 {
   "dependencies": {
-    "@cotherapist/instrument-take": "file:../packages/instrument-take"
+    "@cotherapist-ru/instrument-take": "file:../packages/instrument-take"
   }
 }
 ```
 
-После выхода стабильной версии в `cotherapist-public-testing` можно перейти на semver из npm:
-
-```bash
-cd cotherapist-public-testing
-npm install @cotherapist/instrument-take@^0.1.0
-```
+Путь `file:` не работает в GitLab CI monolith/public-testing: пакет лежит в другом репозитории. Для образов используйте registry.
 
 ---
 
-## 10. Troubleshooting
+## 9. Troubleshooting
 
 | Проблема | Решение |
 |----------|---------|
-| `402 Payment Required` / scope не найден | Создать org `@cotherapist` на npm или проверить членство |
-| `403 Forbidden` при publish | Токен без write-доступа; обновить `NPM_TOKEN` |
+| `401` / `403` при `npm publish` | Нет `packages: write`; проверить Workflow permissions и org package settings |
 | `403` — версия уже существует | Поднять `version` в `package.json`, новый тег и Release |
+| `404` при `npm install` | Нет `_authToken`; GitHub Packages не отдаёт пакеты анонимно |
+| Scope `@cotherapist/...` | GitHub Packages требует `@<owner>/...`. Owner репозитория — `cotherapist-ru` |
 | CI падает на `npm ci` | Закоммитить актуальный `package-lock.json` |
-| Provenance не отображается | Public repo + `id-token: write` + Automation token + Trusted Publisher |
-| Release создан, Publish не стартовал | Release должен быть **Published**, не Draft; проверить вкладку Actions |
+| Release создан, Publish не стартовал | Release должен быть **Published**, не Draft |
+| Docker `yarn install` 401 | Передать `NODE_AUTH_TOKEN` как build-arg; `.npmrc` должен попасть в образ |
 | Тесты падают локально | `node -v` >= 18; `npm ci && npm test` |
 
 ---
 
-## 11. Чеклист первой публикации
+## 10. Чеклист релиза
 
-- [ ] Org `@cotherapist` на npm создана
-- [ ] Automation token создан
-- [ ] Репозиторий `cotherapist-ru/instrument-take` на GitHub создан
-- [ ] Код запушен в `main`
-- [ ] Секрет `NPM_TOKEN` добавлен в GitHub Actions
+- [ ] Изменения в `cotherapist-ru/instrument-take` запушены в `main`
 - [ ] CI на `main` зелёный
 - [ ] `npm test` и `npm pack --dry-run` локально OK
-- [ ] GitHub Release `v0.1.0` опубликован
+- [ ] GitHub Release `vX.Y.Z` опубликован (версия = `package.json`)
 - [ ] Workflow **Publish** успешен
-- [ ] Пакет виден на npm и устанавливается
+- [ ] Пакет виден в GitHub Packages
+- [ ] Потребители: `.npmrc` + `@cotherapist-ru/instrument-take@^X.Y.Z` + `NODE_AUTH_TOKEN`

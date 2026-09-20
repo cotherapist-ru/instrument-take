@@ -31,6 +31,8 @@ export default class extends Controller {
     "nextPhaseButton",
     "submitButton",
     "progressText",
+    "procedureFieldset",
+    "procedureLockedFlag",
   ]
 
   static values = {
@@ -67,6 +69,10 @@ export default class extends Controller {
     unpickedLabelTemplate: String,
     pickedLabelTemplate: String,
     progressTemplate: String,
+    /** Permanent Szondi procedure preference already saved on the client. */
+    procedureLocked: { type: Boolean, default: false },
+    /** Initial procedure mode ("discrete" | "continuum") — locked value or wizard default. */
+    initialProcedureMode: { type: String, default: "discrete" },
   }
 
   connect() {
@@ -96,10 +102,19 @@ export default class extends Controller {
     this.likes = []
     this.dislikes = []
     this.ranking = []
-    this.procedureMode = this.readProcedureMode()
+    this.procedureLocked = this.procedureLockedValue
+    this.procedureMode = this.resolveInitialProcedureMode()
     this.syncProcedureHidden()
     this.refreshPlaneLabel()
     this.refreshPhase()
+  }
+
+  resolveInitialProcedureMode() {
+    if (this.procedureLockedValue) {
+      const locked = this.initialProcedureModeValue
+      if (locked === "continuum" || locked === "discrete") return locked
+    }
+    return this.readProcedureMode()
   }
 
   discretePhaseCount() {
@@ -121,12 +136,30 @@ export default class extends Controller {
   }
 
   setProcedureMode(event) {
+    if (this.procedureLocked) return
     const mode = event.target.value
     if (mode === this.procedureMode) return
     this.procedureMode = mode
     this.resetWizardState()
     this.syncProcedureHidden()
     this.refreshPhase()
+  }
+
+  // Locks the procedure toggle after the first portrait pick so the client
+  // cannot accidentally reset their progress mid-take. We only disable the
+  // radios and never collapse the fieldset — collapsing it shifts the portrait
+  // grid down on the first pick. No-op when already locked by a saved pref.
+  lockProcedureAfterPick() {
+    if (this.procedureLocked) return
+    this.procedureLocked = true
+    if (this.hasProcedureFieldsetTarget) {
+      this.procedureFieldsetTarget.classList.add("ordered-selection-procedure-options--locked")
+      this.procedureFieldsetTarget
+        .querySelectorAll("input[type='radio']")
+        .forEach((input) => {
+          input.disabled = true
+        })
+    }
   }
 
   resetWizardState() {
@@ -220,26 +253,44 @@ export default class extends Controller {
   refreshPhaseHint() {
     if (!this.hasPhaseHintTarget) return
 
+    let hint = ""
+    let dislike = false
+
     if (this.continuumMode()) {
-      const hint = this.plane === "rear" ? this.continuumRearHintValue : this.continuumFrontHintValue
-      this.phaseHintTarget.textContent = hint || ""
-      return
+      hint = this.plane === "rear" ? this.continuumRearHintValue : this.continuumFrontHintValue
+    } else {
+      const frontHints = [
+        this.like1HintValue,
+        this.like2HintValue,
+        this.dislike1HintValue,
+        this.dislike2HintValue,
+      ]
+      const rearHints = [
+        this.rearLike1HintValue,
+        this.rearLike2HintValue,
+        this.rearDislike1HintValue,
+        this.rearDislike2HintValue,
+      ]
+      const hints = this.plane === "front" ? frontHints : rearHints
+      hint = hints[this.phaseIndex] || ""
+      // Discrete dislike phases are indices >= selectionsPerPole (2, 3).
+      dislike =
+        this.phaseIndex >= this.selectionsPerPoleValue && Boolean(hint)
     }
 
-    const frontHints = [
-      this.like1HintValue,
-      this.like2HintValue,
-      this.dislike1HintValue,
-      this.dislike2HintValue,
-    ]
-    const rearHints = [
-      this.rearLike1HintValue,
-      this.rearLike2HintValue,
-      this.rearDislike1HintValue,
-      this.rearDislike2HintValue,
-    ]
-    const hints = this.plane === "front" ? frontHints : rearHints
-    this.phaseHintTarget.textContent = hints[this.phaseIndex] || ""
+    this.phaseHintTarget.textContent = hint
+    // Keep the slot in flow even when empty so the portrait grid below does
+    // not jump on every pick. The reserved min-height lives in CSS and is
+    // larger on the rear plane where hints are longer (rear_phase_like_2).
+    this.phaseHintTarget.classList.toggle("ordered-selection-phase-hint--empty", !hint)
+    this.phaseHintTarget.classList.toggle(
+      "ordered-selection-phase-hint--rear",
+      this.plane === "rear"
+    )
+    this.phaseHintTarget.classList.toggle(
+      "ordered-selection-phase-hint--dislike",
+      dislike
+    )
   }
 
   refreshRankingStrip() {
@@ -373,6 +424,8 @@ export default class extends Controller {
 
     const slot = parseInt(event.currentTarget.dataset.slot, 10)
     if (Number.isNaN(slot)) return
+
+    this.lockProcedureAfterPick()
 
     if (this.continuumMode()) {
       this.pickContinuum(slot)

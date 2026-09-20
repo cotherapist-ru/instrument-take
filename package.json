@@ -1,6 +1,6 @@
 {
-  "name": "@cotherapist/instrument-take",
-  "version": "0.1.0",
+  "name": "@cotherapist-ru/instrument-take",
+  "version": "0.2.0",
   "description": "Stimulus controllers for Cotherapist instrument take forms (questionnaire, ordered_selection, stimulus_wizard)",
   "type": "module",
   "main": "./src/index.js",
@@ -46,6 +46,6 @@
   "license": "MIT",
   "publishConfig": {
     "access": "public",
-    "registry": "https://registry.npmjs.org"
+    "registry": "https://npm.pkg.github.com"
   }
 }
