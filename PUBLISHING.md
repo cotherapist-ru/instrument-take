@@ -213,5 +213,5 @@ app.register("submit-loading", SubmitLoadingController)
 - [ ] `npm test` и `npm pack --dry-run` локально OK
 - [ ] GitHub Release `vX.Y.Z` опубликован (версия = `package.json`)
 - [ ] Workflow **Publish** успешен
-- [ ] Пакет виден в GitHub Packages
+- [ ] Пакет виден в GitHub Packages, visibility **Public** (Package settings → Change visibility)
 - [ ] Потребители: `.npmrc` + `@cotherapist-ru/instrument-take@^X.Y.Z` + `NODE_AUTH_TOKEN`
